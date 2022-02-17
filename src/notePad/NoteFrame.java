@@ -22,6 +22,7 @@ public class NoteFrame extends JFrame implements ActionListener {
     private JMenu edit;
     private JMenu help;
     private JMenuItem copy;
+    private JMenuItem cut;
     private JMenuItem paste;
     private JMenuItem about;
     private JMenuItem open;
@@ -34,7 +35,7 @@ public class NoteFrame extends JFrame implements ActionListener {
     private Clipboard clip;
 
     public NoteFrame(){
-        this.setTitle("NotePad Application\nok");
+        this.setTitle("untitled* \nNotePad");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setResizable(false);
         this.setLayout(new BorderLayout());
@@ -64,6 +65,7 @@ public class NoteFrame extends JFrame implements ActionListener {
         save = new JMenuItem("Save");
         close = new JMenuItem("Close");
         copy = new JMenuItem("Copy");
+        cut = new JMenuItem("Cut");
         paste = new JMenuItem("Paste");
         about = new JMenuItem("About");
 
@@ -72,6 +74,7 @@ public class NoteFrame extends JFrame implements ActionListener {
         this.close.addActionListener(this);
 
         this.copy.addActionListener(this);
+        this.cut.addActionListener(this);
         this.paste.addActionListener(this);
         this.about.addActionListener(this);
 
@@ -83,6 +86,7 @@ public class NoteFrame extends JFrame implements ActionListener {
         this.file.add(save);
         this.file.add(close);
         this.edit.add(copy);
+        this.edit.add(cut);
         this.edit.add(paste);
         this.help.add(about);
         //
@@ -105,8 +109,12 @@ public class NoteFrame extends JFrame implements ActionListener {
                 this.open(filePath);
             }
         }else if(e.getSource() == this.copy){
-            System.out.println("copy");
-            //this.textField.copy();
+            this.textField.copy();
+            String toCopy = this.textField.getText();
+            StringSelection stringSelection = new StringSelection(toCopy);
+            clip.setContents(stringSelection, stringSelection);
+        }else if(e.getSource() == this.cut){
+            this.textField.cut();
             String toCopy = this.textField.getText();
             StringSelection stringSelection = new StringSelection(toCopy);
             clip.setContents(stringSelection, stringSelection);
