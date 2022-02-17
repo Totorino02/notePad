@@ -34,11 +34,14 @@ public class NoteFrame extends JFrame implements ActionListener {
         this.setLayout(new BorderLayout());
         this.setSize(new Dimension(frameWidth, frameHeight));
         this.setPreferredSize(new Dimension(frameWidth, frameHeight));
-        this.setLocationRelativeTo(null);
+        this.setLocationRelativeTo(null );
         this.pack();
 
-        textField = new JTextArea();
+        this.textField = new JTextArea();
         this.textField.setFont(new Font("",Font.PLAIN,18));
+        this.textField.setEditable(true);
+        this.textField.setLineWrap(true);
+        this.textField.setWrapStyleWord(true);
         scrollPane = new JScrollPane(textField);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPane.setVisible(true);
@@ -56,7 +59,6 @@ public class NoteFrame extends JFrame implements ActionListener {
         this.open.addActionListener(this);
         this.save.addActionListener(this);
         this.close.addActionListener(this);
-
 
         this.menu.add(file);
         this.menu.add(copy);
@@ -85,6 +87,10 @@ public class NoteFrame extends JFrame implements ActionListener {
                 this.setTitle(filePath);
                 this.open(filePath);
             }
+        }else if(e.getSource() == this.copy){
+            this.textField.copy();
+        }else if (e.getSource() == this.copy){
+            this.textField.paste();
         }
     }
 
