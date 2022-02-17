@@ -2,6 +2,8 @@ package notePad;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -17,15 +19,19 @@ public class NoteFrame extends JFrame implements ActionListener {
     private String filePath;
     private JMenuBar menu;
     private JMenu file;
-    private JMenu copy;
-    private JMenu paste;
-    private JMenu about;
+    private JMenu edit;
+    private JMenu help;
+    private JMenuItem copy;
+    private JMenuItem paste;
+    private JMenuItem about;
     private JMenuItem open;
     private JMenuItem save;
     private JMenuItem close;
 
     private JTextArea textField;
     private JScrollPane scrollPane;
+
+    private Clipboard clip;
 
     public NoteFrame(){
         this.setTitle("NotePad Application\nok");
@@ -37,6 +43,8 @@ public class NoteFrame extends JFrame implements ActionListener {
         this.setLocationRelativeTo(null );
         this.pack();
 
+        this.clip = getToolkit().getSystemClipboard();
+
         this.textField = new JTextArea();
         this.textField.setFont(new Font("",Font.PLAIN,18));
         this.textField.setEditable(true);
@@ -46,28 +54,37 @@ public class NoteFrame extends JFrame implements ActionListener {
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPane.setVisible(true);
         menu = new JMenuBar();
+
         //Menus
         file = new JMenu("File");
-        copy = new JMenu("Copy");
-        paste = new JMenu("Paste");
-        about = new JMenu("About");
+        edit = new JMenu("Edit");
+        help = new JMenu("Help");
         //Menu items
         open = new JMenuItem("Open");
         save = new JMenuItem("Save");
         close = new JMenuItem("Close");
+        copy = new JMenuItem("Copy");
+        paste = new JMenuItem("Paste");
+        about = new JMenuItem("About");
 
         this.open.addActionListener(this);
         this.save.addActionListener(this);
         this.close.addActionListener(this);
 
+        this.copy.addActionListener(this);
+        this.paste.addActionListener(this);
+        this.about.addActionListener(this);
+
         this.menu.add(file);
-        this.menu.add(copy);
-        this.menu.add(paste);
-        this.menu.add(about);
+        this.menu.add(edit);
+        this.menu.add(help);
         //
         this.file.add(open);
         this.file.add(save);
         this.file.add(close);
+        this.edit.add(copy);
+        this.edit.add(paste);
+        this.help.add(about);
         //
         this.setJMenuBar(menu);
         this.add(scrollPane);
@@ -88,8 +105,12 @@ public class NoteFrame extends JFrame implements ActionListener {
                 this.open(filePath);
             }
         }else if(e.getSource() == this.copy){
-            this.textField.copy();
-        }else if (e.getSource() == this.copy){
+            System.out.println("copy");
+            //this.textField.copy();
+            String toCopy = this.textField.getText();
+            StringSelection stringSelection = new StringSelection(toCopy);
+            clip.setContents(stringSelection, stringSelection);
+        }else if (e.getSource() == this.paste){
             this.textField.paste();
         }
     }
