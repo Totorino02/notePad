@@ -6,10 +6,7 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.stream.IntStream;
 
 public class NoteFrame extends JFrame implements ActionListener {
@@ -27,7 +24,7 @@ public class NoteFrame extends JFrame implements ActionListener {
     private JMenuItem about;
     private JMenuItem open;
     private JMenuItem save;
-    private JMenuItem close;
+    private JMenuItem exit;
 
     private JTextArea textField;
     private JScrollPane scrollPane;
@@ -37,7 +34,7 @@ public class NoteFrame extends JFrame implements ActionListener {
     public NoteFrame(){
         this.setTitle("untitled* \nNotePad");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setResizable(false);
+        //this.setResizable(false);
         this.setLayout(new BorderLayout());
         this.setSize(new Dimension(frameWidth, frameHeight));
         this.setPreferredSize(new Dimension(frameWidth, frameHeight));
@@ -63,7 +60,7 @@ public class NoteFrame extends JFrame implements ActionListener {
         //Menu items
         open = new JMenuItem("Open");
         save = new JMenuItem("Save");
-        close = new JMenuItem("Close");
+        exit = new JMenuItem("Exit");
         copy = new JMenuItem("Copy");
         cut = new JMenuItem("Cut");
         paste = new JMenuItem("Paste");
@@ -71,7 +68,7 @@ public class NoteFrame extends JFrame implements ActionListener {
 
         this.open.addActionListener(this);
         this.save.addActionListener(this);
-        this.close.addActionListener(this);
+        this.exit.addActionListener(this);
 
         this.copy.addActionListener(this);
         this.cut.addActionListener(this);
@@ -84,7 +81,7 @@ public class NoteFrame extends JFrame implements ActionListener {
         //
         this.file.add(open);
         this.file.add(save);
-        this.file.add(close);
+        this.file.add(exit);
         this.edit.add(copy);
         this.edit.add(cut);
         this.edit.add(paste);
@@ -105,8 +102,17 @@ public class NoteFrame extends JFrame implements ActionListener {
             int response = fileChooser.showOpenDialog(this);
             if(response == JFileChooser.APPROVE_OPTION){
                 filePath = fileChooser.getSelectedFile().getAbsolutePath();
-                this.setTitle(filePath);
+                this.setTitle(fileChooser.getSelectedFile().getName()+"\nNotePad");
+                this.textField.setText("");
                 this.open(filePath);
+            }
+        }else if(e.getSource() == this.save){
+            JFileChooser fileChooser = new JFileChooser();
+            int response = fileChooser.showSaveDialog(this);
+            if(response == JFileChooser.APPROVE_OPTION){
+                filePath = fileChooser.getSelectedFile().getAbsolutePath();
+                this.setTitle(fileChooser.getSelectedFile().getName()+"\nNotePad");
+                saveFile(filePath);
             }
         }else if(e.getSource() == this.copy){
             this.textField.copy();
@@ -120,23 +126,40 @@ public class NoteFrame extends JFrame implements ActionListener {
             clip.setContents(stringSelection, stringSelection);
         }else if (e.getSource() == this.paste){
             this.textField.paste();
+        }else if(e.getSource() == this.about){
+            String str = "Cloned NotePad application using Java\nCopyright HOUNSI Antoine\nAll Right Reserved";
+            JOptionPane.showMessageDialog(this,str,"information",JOptionPane.INFORMATION_MESSAGE);
+            //showHelp
+        }else if(e.getSource() == this.exit){
+            String str = "Are you sure you want to exit?";
+            int response = JOptionPane.showConfirmDialog(this,str,"Confirm Exit",JOptionPane.YES_NO_OPTION);
+            if(response == 0){
+                this.dispose();
+            }
         }
     }
 
     private void open(String path){
         StringBuilder str = new StringBuilder();
-        try(FileInputStream fis = new FileInputStream(new File(path))) {
-            byte[] bites = new byte[8];
-            while (fis.read(bites) != -1){
-                for(byte b : bites){
-                    str.append((char)b);
-                }
-                bites = new byte[8];
+        try(BufferedReader fis = new BufferedReader(new InputStreamReader(new FileInputStream(new File(path))))) {
+           this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+            String data;
+            while((data = fis.readLine() )!= null){
+                this.textField.setText(textField.getText()+data+"\r\n");
             }
+            this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
         }catch (IOException e){
             e.printStackTrace();
         }
-        //System.out.println(str.toString());
-        this.textField.setText(str.toString());
+    }
+
+    private void saveFile(String path){
+        try(DataOutputStream out = new DataOutputStream(new FileOutputStream(new File(path)))) {
+            this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+            out.writeBytes(this.textField.getText());
+            this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
